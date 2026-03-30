@@ -1,288 +1,91 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PEA Standby Demo</title>
+  <meta charset="UTF-8">
+  <title>PEA Standby System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
-    :root{
-      --pea:#6b1fa7;
-      --pea-dark:#4a148c;
-      --gold:#ffd54f;
-      --bg:#f6f1fb;
-      --card:#ffffff;
-      --text:#2a1b3d;
-      --muted:#6c6480;
-      --ok:#1f9d55;
-      --warn:#e67e22;
-      --bad:#e74c3c;
-      --shadow:0 12px 28px rgba(63,25,107,.12);
-      --radius:20px;
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #6b1fa7, #d12c8b);
+      color: white;
+      text-align: center;
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: "Segoe UI", Tahoma, sans-serif;
-      background: linear-gradient(160deg, #f9f4ff 0%, #f4edff 40%, #fffdf6 100%);
-      color:var(--text);
+
+    header {
+      padding: 20px;
+      font-size: 24px;
+      font-weight: bold;
     }
-    .wrap{max-width:1200px;margin:0 auto;padding:24px}
-    .hero{
-      background:linear-gradient(135deg,var(--pea),#8e24aa 55%,#b039c9);
-      color:#fff;
-      border-radius:28px;
-      padding:28px;
-      box-shadow:var(--shadow);
-      position:relative;
-      overflow:hidden;
+
+    .container {
+      margin-top: 50px;
     }
-    .hero::after{
-      content:"";
-      position:absolute;
-      width:320px;height:320px;
-      right:-90px;top:-90px;
-      background:rgba(255,255,255,.08);
-      border-radius:50%;
+
+    .card {
+      background: white;
+      color: #333;
+      padding: 20px;
+      border-radius: 16px;
+      width: 300px;
+      margin: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
-    .brand{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
-    .logo{
-      width:58px;height:58px;border-radius:18px;
-      background:linear-gradient(135deg,var(--gold),#fff1a5);
-      color:var(--pea-dark);
-      display:grid;place-items:center;font-weight:800;font-size:20px;
-      box-shadow:0 8px 20px rgba(0,0,0,.18);
+
+    button {
+      background: #6b1fa7;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 15px;
+      font-size: 16px;
     }
-    h1{margin:0;font-size:clamp(28px,4vw,40px)}
-    .sub{margin:8px 0 0;color:rgba(255,255,255,.88);line-height:1.55;max-width:780px}
-    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;position:relative;z-index:1}
-    button,.btn{
-      border:none;cursor:pointer;border-radius:14px;padding:12px 18px;
-      font-size:15px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:8px;
-      transition:.2s transform,.2s box-shadow,.2s opacity;
+
+    button:hover {
+      background: #4a148c;
     }
-    button:hover,.btn:hover{transform:translateY(-1px)}
-    .btn-primary{background:var(--gold);color:#4a2c00;box-shadow:0 10px 20px rgba(0,0,0,.16)}
-    .btn-secondary{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25)}
-    .grid{display:grid;gap:18px;margin-top:22px}
-    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
-    .grid-2{grid-template-columns:1.35fr .95fr}
-    .card{
-      background:var(--card);
-      border-radius:var(--radius);
-      padding:20px;
-      box-shadow:var(--shadow);
-    }
-    .card h2,.card h3{margin:0 0 12px}
-    .muted{color:var(--muted)}
-    .kpi{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      min-height:118px;
-    }
-    .kpi .num{font-size:34px;font-weight:800;color:var(--pea-dark)}
-    .pill{
-      display:inline-flex;align-items:center;gap:7px;
-      padding:7px 12px;border-radius:999px;font-size:13px;font-weight:700
-    }
-    .ok{background:#e8fff2;color:#127a42}
-    .warn{background:#fff6e8;color:#b56413}
-    .bad{background:#ffeceb;color:#bf2d21}
-    .table{width:100%;border-collapse:collapse}
-    .table th,.table td{padding:12px 10px;border-bottom:1px solid #eee;text-align:left}
-    .table th{font-size:13px;color:var(--muted)}
-    .leader{color:#c62828;font-weight:800}
-    .timeline{display:grid;gap:12px}
-    .timeline-item{
-      display:grid;grid-template-columns:80px 1fr;gap:12px;align-items:start;
-      background:#faf8fd;border:1px solid #efe7f8;border-radius:16px;padding:12px
-    }
-    .time{font-weight:800;color:var(--pea-dark)}
-    .footer{margin:24px 0 8px;text-align:center;color:var(--muted)}
-    .toast{
-      position:fixed;right:18px;bottom:18px;background:#2f2142;color:#fff;
-      padding:14px 16px;border-radius:16px;box-shadow:var(--shadow);opacity:0;pointer-events:none;
-      transform:translateY(10px);transition:.25s;max-width:320px
-    }
-    .toast.show{opacity:1;transform:translateY(0)}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    input,select{
-      width:100%;padding:12px 14px;border:1px solid #ddd;border-radius:12px;font-size:14px;outline:none
-    }
-    input:focus,select:focus{border-color:var(--pea);box-shadow:0 0 0 4px rgba(107,31,167,.12)}
-    @media (max-width: 900px){
-      .grid-3,.grid-2,.form-row{grid-template-columns:1fr}
-      .wrap{padding:16px}
-      .hero{padding:22px}
+
+    .time {
+      font-size: 28px;
+      margin-top: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <section class="hero">
-      <div class="brand">
-        <div class="logo">PEA</div>
-        <div>
-          <h1>PEA Standby Demo</h1>
-          <div class="sub">ไฟล์ตัวอย่างสำหรับทดลองใช้งาน GitHub และ Deploy ด้วย GitHub Pages ได้ทันที เป็นเว็บหน้าเดียว ใช้ HTML, CSS และ JavaScript ในไฟล์เดียว เหมาะสำหรับฝึกขั้นตอน Commit, Push และ Publish เว็บไซต์</div>
-        </div>
-      </div>
-      <div class="hero-actions">
-        <button class="btn-primary" id="demoBtn">ทดสอบการแจ้งเตือน</button>
-        <a class="btn btn-secondary" href="#deploy">ดูขั้นตอน Deploy</a>
-      </div>
-    </section>
 
-    <section class="grid grid-3">
-      <div class="card kpi">
-        <div>
-          <div class="muted">ผู้ปฏิบัติงานวันนี้</div>
-          <div class="num" id="staffCount">8</div>
-        </div>
-        <span class="pill ok">พร้อมปฏิบัติงาน</span>
-      </div>
-      <div class="card kpi">
-        <div>
-          <div class="muted">คำขอสับเปลี่ยนเวร</div>
-          <div class="num" id="swapCount">2</div>
-        </div>
-        <span class="pill warn">รอตรวจสอบ</span>
-      </div>
-      <div class="card kpi">
-        <div>
-          <div class="muted">เหตุขัดข้องคงค้าง</div>
-          <div class="num" id="outageCount">1</div>
-        </div>
-        <span class="pill bad">เร่งดำเนินการ</span>
-      </div>
-    </section>
+<header>
+⚡ PEA Standby Dashboard
+</header>
 
-    <section class="grid grid-2">
-      <div class="card">
-        <h2>ตัวอย่างตารางเวรวันนี้</h2>
-        <p class="muted">ข้อมูลชุดนี้เป็นข้อมูลตัวอย่าง เพื่อใช้ทดสอบการแสดงผลบน GitHub Pages</p>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>กะ</th>
-              <th>ผู้ปฏิบัติงาน</th>
-              <th>สถานะ</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>S1</td>
-              <td><span class="leader">นาย A</span>, นาย B</td>
-              <td><span class="pill ok">Online</span></td>
-            </tr>
-            <tr>
-              <td>S2</td>
-              <td><span class="leader">นาย C</span>, นาย D</td>
-              <td><span class="pill ok">พร้อม</span></td>
-            </tr>
-            <tr>
-              <td>S3</td>
-              <td><span class="leader">นาย E</span>, นาย F</td>
-              <td><span class="pill warn">รอยืนยัน</span></td>
-            </tr>
-            <tr>
-              <td>R</td>
-              <td>นาย G, นาย H</td>
-              <td><span class="pill ok">สำรอง</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+<div class="container">
+  <div class="card">
+    <h3>สถานะระบบ</h3>
+    <p>ระบบพร้อมใช้งาน</p>
 
-      <div class="card">
-        <h2>เหตุการณ์ล่าสุด</h2>
-        <div class="timeline">
-          <div class="timeline-item">
-            <div class="time">08:10</div>
-            <div><strong>ลงชื่อเข้าเวร</strong><br><span class="muted">หัวหน้าชุด S1 ยืนยันการปฏิบัติงานเรียบร้อย</span></div>
-          </div>
-          <div class="timeline-item">
-            <div class="time">10:24</div>
-            <div><strong>รับแจ้งไฟดับ</strong><br><span class="muted">พื้นที่ตัวอย่าง หม้อแปลงเขตทดสอบ 01</span></div>
-          </div>
-          <div class="timeline-item">
-            <div class="time">11:05</div>
-            <div><strong>คืนสภาพระบบแล้ว</strong><br><span class="muted">ระบบกลับสู่สภาวะปกติ ใช้เวลา 41 นาที</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <div class="time" id="clock">--:--:--</div>
 
-    <section class="grid grid-2" id="deploy">
-      <div class="card">
-        <h2>ลองแก้ค่าหน้าจอ</h2>
-        <p class="muted">ลองแก้ตัวเลขแล้วกดอัปเดต เพื่อดูว่า JavaScript ทำงาน</p>
-        <div class="form-row">
-          <div>
-            <label>จำนวนผู้ปฏิบัติงาน</label>
-            <input id="inputStaff" type="number" min="0" value="8">
-          </div>
-          <div>
-            <label>คำขอสับเปลี่ยน</label>
-            <input id="inputSwap" type="number" min="0" value="2">
-          </div>
-        </div>
-        <div style="margin-top:12px">
-          <label>เหตุขัดข้องคงค้าง</label>
-          <input id="inputOutage" type="number" min="0" value="1">
-        </div>
-        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn-primary" id="updateBtn">อัปเดต Dashboard</button>
-          <button class="btn-secondary" id="resetBtn" type="button">รีเซ็ตค่า</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>วิธีใช้ไฟล์นี้</h2>
-        <ol class="muted" style="line-height:1.8;padding-left:20px;margin:0">
-          <li>ดาวน์โหลดไฟล์ <strong>index.html</strong></li>
-          <li>นำไปวางในโฟลเดอร์ GitHub ของคุณ</li>
-          <li>กลับไปที่ GitHub Desktop</li>
-          <li>Commit และ Push</li>
-          <li>เปิด GitHub Pages เพื่อ Deploy เว็บไซต์</li>
-        </ol>
-      </div>
-    </section>
-
-    <div class="footer">สร้างไว้สำหรับฝึก GitHub และ Deploy เว็บแบบง่าย ๆ</div>
+    <button onclick="alert('📢 แจ้งเตือนเวรแล้ว!')">
+      แจ้งเตือนเวร
+    </button>
   </div>
+</div>
 
-  <div class="toast" id="toast"></div>
+<script>
+function updateClock() {
+  const now = new Date();
+  document.getElementById("clock").innerText =
+    now.toLocaleTimeString();
+}
 
-  <script>
-    const $ = (id) => document.getElementById(id);
-    const toast = $('toast');
+setInterval(updateClock, 1000);
+updateClock();
+</script>
 
-    function showToast(message){
-      toast.textContent = message;
-      toast.classList.add('show');
-      clearTimeout(showToast._t);
-      showToast._t = setTimeout(() => toast.classList.remove('show'), 2200);
-    }
-
-    $('demoBtn').addEventListener('click', () => {
-      showToast('ทดสอบสำเร็จ: JavaScript ทำงานแล้ว');
-    });
-
-    $('updateBtn').addEventListener('click', () => {
-      $('staffCount').textContent = $('inputStaff').value || '0';
-      $('swapCount').textContent = $('inputSwap').value || '0';
-      $('outageCount').textContent = $('inputOutage').value || '0';
-      showToast('อัปเดต Dashboard เรียบร้อย');
-    });
-
-    $('resetBtn').addEventListener('click', () => {
-      $('inputStaff').value = 8;
-      $('inputSwap').value = 2;
-      $('inputOutage').value = 1;
-      $('staffCount').textContent = 8;
-      $('swapCount').textContent = 2;
-      $('outageCount').textContent = 1;
-      showToast('รีเซ็ตค่าเรียบร้อย');
-    });
-  </script>
 </body>
 </html>
