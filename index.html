@@ -64,10 +64,12 @@
     const data = await response.json();
 
     result.innerHTML = `
-      <h3>👨‍🔧 หัวหน้าเวร: ${data.leader}</h3>
-      <p>กะ: ${data.shift}</p>
-      <p>วันที่: ${data.date}</p>
-    `;
+  <h3>👨‍🔧 หัวหน้าเวร: ${data.leader}</h3>
+  <p>สมาชิก:</p>
+  <ul>
+    ${data.members.map(n => `<li>${n}</li>`).join("")}
+  </ul>
+`;
   } catch (error) {
     result.textContent = "เกิดข้อผิดพลาด: " + error.message;
   }
