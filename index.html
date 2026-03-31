@@ -109,14 +109,35 @@
       }
 
       result.innerHTML = `
-        <h3>วันที่ ${data.day} / ${data.monthIdx} / ${data.beYear}</h3>
-        <p><strong>วัน:</strong> ${data.weekday || "-"}</p>
-        <p><strong>วันหยุด:</strong> ${data.holiday || "-"}</p>
-        <hr>
-        <p><strong>กะ 1:</strong><br>${data.s1 || "-"}</p>
-        <p><strong>กะ 2:</strong><br>${data.s2 || "-"}</p>
-        <p><strong>กะ 3:</strong><br>${data.s3 || "-"}</p>
-      `;
+  <div style="display:grid; gap:16px;">
+    
+    <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 4px 10px rgba(0,0,0,0.1)">
+      <h3 style="margin:0;">📅 วันที่ ${data.day} / ${data.monthIdx} / ${data.beYear}</h3>
+      <p>📌 วัน: <strong>${data.weekday || "-"}</strong></p>
+      <p>📌 สถานะ: <strong>${data.holiday || "-"}</strong></p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:12px;">
+      
+      <div style="background:#6b1fa7;color:#fff;border-radius:12px;padding:16px;">
+        <h4>⚡ กะ 1</h4>
+        <p>${data.s1 || "-"}</p>
+      </div>
+
+      <div style="background:#d12c8b;color:#fff;border-radius:12px;padding:16px;">
+        <h4>⚡ กะ 2</h4>
+        <p>${data.s2 || "-"}</p>
+      </div>
+
+      <div style="background:#ff9800;color:#fff;border-radius:12px;padding:16px;">
+        <h4>⚡ กะ 3</h4>
+        <p>${data.s3 || "-"}</p>
+      </div>
+
+    </div>
+
+  </div>
+`;
     } catch (error) {
       result.textContent = "เกิดข้อผิดพลาด: " + error.message;
     }
