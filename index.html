@@ -79,40 +79,48 @@
     <div id="result" class="result-box">ยังไม่มีข้อมูล</div>
   </div>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxHi06twBYJrMDZaXv_EdRgzWKXVwwXqbkWvDSMz0_lxOJw2DGXY2dVozH-F07yruby/exec";
-    const BE_YEAR = 2569;
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbxHi06twBYJrMDZaXv_EdRgzWKXVwwXqbkWvDSMz0_lxOJw2DGXY2dVozH-F07yruby/exec";
+  const BE_YEAR = 2569;
 
-    async function loadRoster() {
-      const result = document.getElementById("result");
-      const monthIdx = document.getElementById("monthIdx").value;
-      const day = document.getElementById("day").value;
+  async function loadRoster() {
+    const result = document.getElementById("result");
+    const monthIdx = document.getElementById("monthIdx").value;
+    const day = document.getElementById("day").value;
 
-      result.textContent = "กำลังโหลด...";
+    result.textContent = "กำลังโหลด...";
 
+    try {
+      const url = `${API_URL}?action=roster&beYear=${BE_YEAR}&monthIdx=${monthIdx}&day=${day}`;
+      const response = await fetch(url);
+      const text = await response.text();
+
+      let data;
       try {
-        const url = `${API_URL}?action=roster&beYear=${BE_YEAR}&monthIdx=${monthIdx}&day=${day}`;
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if(!data.ok){
-          result.textContent = "โหลดไม่สำเร็จ";
-          return;
-        }
-
-        result.innerHTML = `
-          <h3>วันที่ ${data.day} / ${data.monthIdx} / ${data.beYear}</h3>
-          <p><strong>วัน:</strong> ${data.weekday || "-"}</p>
-          <p><strong>วันหยุด:</strong> ${data.holiday || "-"}</p>
-          <hr>
-          <p><strong>กะ 1:</strong><br>${data.s1 || "-"}</p>
-          <p><strong>กะ 2:</strong><br>${data.s2 || "-"}</p>
-          <p><strong>กะ 3:</strong><br>${data.s3 || "-"}</p>
-        `;
-      } catch (error) {
-        result.textContent = "เกิดข้อผิดพลาด: " + error.message;
+        data = JSON.parse(text);
+      } catch (err) {
+        result.textContent = "ข้อมูลที่ได้ไม่ใช่ JSON:\n\n" + text;
+        return;
       }
+
+      if (!data.ok) {
+        result.textContent = "โหลดไม่สำเร็จ:\n" + JSON.stringify(data, null, 2);
+        return;
+      }
+
+      result.innerHTML = `
+        <h3>วันที่ ${data.day} / ${data.monthIdx} / ${data.beYear}</h3>
+        <p><strong>วัน:</strong> ${data.weekday || "-"}</p>
+        <p><strong>วันหยุด:</strong> ${data.holiday || "-"}</p>
+        <hr>
+        <p><strong>กะ 1:</strong><br>${data.s1 || "-"}</p>
+        <p><strong>กะ 2:</strong><br>${data.s2 || "-"}</p>
+        <p><strong>กะ 3:</strong><br>${data.s3 || "-"}</p>
+      `;
+    } catch (error) {
+      result.textContent = "เกิดข้อผิดพลาด: " + error.message;
     }
-  </script>
+  }
+</script>>
 </body>
 </html>
