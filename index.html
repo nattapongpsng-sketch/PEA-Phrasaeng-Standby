@@ -56,17 +56,22 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbxHi06twBYJrMDZaXv_EdRgzWKXVwwXqbkWvDSMz0_lxOJw2DGXY2dVozH-F07yruby/exec";
 
     async function loadAPI() {
-      const result = document.getElementById("result");
-      result.textContent = "กำลังโหลด...";
+  const result = document.getElementById("result");
+  result.textContent = "กำลังโหลด...";
 
-      try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
-        result.textContent = JSON.stringify(data, null, 2);
-      } catch (error) {
-        result.textContent = "เกิดข้อผิดพลาด: " + error.message;
-      }
-    }
+  try {
+    const response = await fetch(API_URL + "?action=roster");
+    const data = await response.json();
+
+    result.innerHTML = `
+      <h3>👨‍🔧 หัวหน้าเวร: ${data.leader}</h3>
+      <p>กะ: ${data.shift}</p>
+      <p>วันที่: ${data.date}</p>
+    `;
+  } catch (error) {
+    result.textContent = "เกิดข้อผิดพลาด: " + error.message;
+  }
+}
   </script>
 </body>
 </html>
