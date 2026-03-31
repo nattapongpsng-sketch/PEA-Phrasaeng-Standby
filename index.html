@@ -21,15 +21,7 @@
       padding:24px;
       box-shadow:0 10px 30px rgba(0,0,0,.2);
     }
-    h1{
-      margin-top:0;
-    }
-    pre{
-      background:#f4f4f4;
-      padding:16px;
-      border-radius:12px;
-      overflow:auto;
-    }
+    h1{ margin-top:0; }
     button{
       padding:10px 16px;
       border:none;
@@ -39,41 +31,88 @@
       cursor:pointer;
       font-size:16px;
     }
+    input, select{
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid #ccc;
+      font-size:16px;
+      margin-right:8px;
+    }
+    .result-box{
+      background:#f4f4f4;
+      padding:16px;
+      border-radius:12px;
+      margin-top:16px;
+      white-space:pre-wrap;
+    }
   </style>
 </head>
 <body>
   <div class="card">
     <h1>ทดสอบเชื่อม Google Apps Script API</h1>
-    <p>หน้านี้จะลองเรียกข้อมูลจาก Google Apps Script</p>
+    <p>โหลดข้อมูลเวรจากชีตรายเดือน</p>
 
-    <button onclick="loadAPI()">โหลดข้อมูลจาก API</button>
+    <div style="margin-bottom:16px;">
+      <label>เดือน:</label>
+      <select id="monthIdx">
+        <option value="1">ม.ค.</option>
+        <option value="2">ก.พ.</option>
+        <option value="3">มี.ค.</option>
+        <option value="4">เม.ย.</option>
+        <option value="5">พ.ค.</option>
+        <option value="6">มิ.ย.</option>
+        <option value="7">ก.ค.</option>
+        <option value="8">ส.ค.</option>
+        <option value="9">ก.ย.</option>
+        <option value="10">ต.ค.</option>
+        <option value="11">พ.ย.</option>
+        <option value="12">ธ.ค.</option>
+      </select>
+
+      <label>วันที่:</label>
+      <input type="number" id="day" value="1" min="1" max="31">
+
+      <button onclick="loadRoster()">โหลดข้อมูลเวร</button>
+    </div>
 
     <h2>ผลลัพธ์</h2>
-    <pre id="result">ยังไม่มีข้อมูล</pre>
+    <div id="result" class="result-box">ยังไม่มีข้อมูล</div>
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxHi06twBYJrMDZaXv_EdRgzWKXVwwXqbkWvDSMz0_lxOJw2DGXY2dVozH-F07yruby/exec";
+    const API_URL = "ใส่ URL GAS ของคุณตรงนี้";
+    const BE_YEAR = 2569;
 
-    async function loadAPI() {
-  const result = document.getElementById("result");
-  result.textContent = "กำลังโหลด...";
+    async function loadRoster() {
+      const result = document.getElementById("result");
+      const monthIdx = document.getElementById("monthIdx").value;
+      const day = document.getElementById("day").value;
 
-  try {
-    const response = await fetch(API_URL + "?action=roster");
-    const data = await response.json();
+      result.textContent = "กำลังโหลด...";
 
-    result.innerHTML = `
-  <h3>👨‍🔧 หัวหน้าเวร: ${data.leader}</h3>
-  <p>สมาชิก:</p>
-  <ul>
-    ${data.members.map(n => `<li>${n}</li>`).join("")}
-  </ul>
-`;
-  } catch (error) {
-    result.textContent = "เกิดข้อผิดพลาด: " + error.message;
-  }
-}
+      try {
+        const url = `${API_URL}?action=roster&beYear=${BE_YEAR}&monthIdx=${monthIdx}&day=${day}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if(!data.ok){
+          result.textContent = "โหลดไม่สำเร็จ";
+          return;
+        }
+
+        result.innerHTML = `
+          <h3>วันที่ ${data.day} / ${data.monthIdx} / ${data.beYear}</h3>
+          <p><strong>วัน:</strong> ${data.weekday || "-"}</p>
+          <p><strong>วันหยุด:</strong> ${data.holiday || "-"}</p>
+          <hr>
+          <p><strong>กะ 1:</strong><br>${data.s1 || "-"}</p>
+          <p><strong>กะ 2:</strong><br>${data.s2 || "-"}</p>
+          <p><strong>กะ 3:</strong><br>${data.s3 || "-"}</p>
+        `;
+      } catch (error) {
+        result.textContent = "เกิดข้อผิดพลาด: " + error.message;
+      }
+    }
   </script>
 </body>
 </html>
