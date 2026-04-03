@@ -1,126 +1,482 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PEA Standby API Test</title>
+  <meta charset="utf-8" />
+  <title>PEA Standby Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#6b1fa7" />
+
   <style>
+    :root{
+      --p1:#6b1fa7;
+      --p2:#d12c8b;
+      --ink:#1f1330;
+      --gold:#ffd95c;
+      --gold-600:#e9c249;
+      --panel:#ffffff;
+      --panel2:#fbf7ff;
+      --line:#ece6f5;
+      --line2:#e3d8f6;
+      --muted:#7a6f8a;
+      --holiday:#fff3f6;
+      --radius:14px;
+      --shadow:0 8px 20px rgba(54,0,88,.08), 0 2px 8px rgba(54,0,88,.05);
+      --tap:44px;
+      --sat: env(safe-area-inset-top);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
     body{
-      font-family: Arial, sans-serif;
-      margin:0;
-      padding:24px;
-      background: linear-gradient(135deg, #6b1fa7, #d12c8b);
-      color:#fff;
+      font-family:system-ui,Segoe UI,Arial,sans-serif;
+      color:var(--ink);
+      background:linear-gradient(135deg,var(--p1),var(--p2));
+      background-attachment:fixed;
+      overflow-x:hidden;
     }
 
-    .card{
-      max-width:900px;
-      margin:0 auto;
-      background:#fff;
-      color:#222;
-      border-radius:16px;
-      padding:24px;
-      box-shadow:0 10px 30px rgba(0,0,0,.2);
+    .app-shell{
+      display:flex;
+      min-height:100vh;
     }
 
-    h1, h2{
-      margin-top:0;
+    .sidebar{
+      width:260px;
+      background:rgba(8,0,35,.96);
+      color:#f8f4ff;
+      padding:16px 12px;
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      box-shadow:4px 0 16px rgba(0,0,0,.35);
+      position:sticky;
+      top:0;
+      align-self:flex-start;
+      z-index:30;
+      min-height:100vh;
+      transition:transform .18s ease;
     }
 
-    button{
-      padding:10px 16px;
-      border:none;
-      border-radius:10px;
-      background:#6b1fa7;
-      color:#fff;
-      cursor:pointer;
-      font-size:16px;
-    }
-
-    button:hover{
-      opacity:.95;
-    }
-
-    input, select{
-      padding:10px 12px;
-      border-radius:10px;
-      border:1px solid #ccc;
-      font-size:16px;
-      margin-right:8px;
-    }
-
-    .result-box{
-      background:#f4f4f4;
-      padding:16px;
+    .sidebar-brand{
+      font-size:18px;
+      font-weight:800;
+      line-height:1.3;
+      padding:8px 10px;
       border-radius:12px;
-      margin-top:16px;
-      white-space:pre-wrap;
+      background:linear-gradient(120deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.18);
+    }
+
+    .sidebar-brand small{
+      display:block;
+      font-size:12px;
+      opacity:.85;
+      margin-top:2px;
+    }
+
+    .user-block{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px;
+      border-radius:14px;
+      background:rgba(7,0,32,.9);
+      border:1px solid rgba(255,255,255,.12);
+    }
+
+    .user-avatar{
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      background:linear-gradient(135deg,#ffd95c,#fff);
+      color:#4a2c00;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      font-size:18px;
+      flex-shrink:0;
+    }
+
+    .user-info-main{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+
+    .user-name{
+      font-size:14px;
+      font-weight:700;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .user-meta{
+      font-size:11px;
+      opacity:.8;
+    }
+
+    .side-nav{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+
+    .side-link{
+      border:none;
+      border-radius:999px;
+      padding:10px 14px;
+      font-size:14px;
+      cursor:pointer;
+      background:transparent;
+      color:#f4eaff;
+      text-align:left;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-height:var(--tap);
+    }
+
+    .side-link.active{
+      background:#fff;
+      color:#6b1fa7;
+      font-weight:800;
+      box-shadow:0 2px 8px rgba(0,0,0,.4);
+    }
+
+    .side-link.disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .side-footer{
+      margin-top:auto;
+      font-size:11px;
+      opacity:.8;
+      padding:4px 8px;
+      line-height:1.5;
+    }
+
+    .app-main{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
+      min-width:0;
+      backdrop-filter:blur(6px);
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:20;
+      background:linear-gradient(120deg,rgba(107,31,167,.96),rgba(209,44,139,.96));
+      backdrop-filter:blur(6px);
+      border-bottom:1px solid rgba(255,255,255,.16);
+      padding-top:var(--sat);
+    }
+
+    .container{
+      max-width:1200px;
+      margin:0 auto;
+      padding:16px;
+    }
+
+    .brandbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      color:#fff;
+      padding:10px 18px;
+    }
+
+    .brand-left{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+    }
+
+    .brand-title-row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .hambtn{
+      display:none;
+      border:none;
+      cursor:pointer;
+      height:var(--tap);
+      min-width:var(--tap);
+      padding:0 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.16);
+      color:#fff;
+      font-weight:900;
+      border:1px solid rgba(255,255,255,.18);
+    }
+
+    .topbar h1{
+      margin:0;
+      font-size:20px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .subline{
+      font-size:12px;
+      opacity:.92;
     }
 
     .toolbar{
       display:flex;
-      flex-wrap:wrap;
       gap:8px;
+      flex-wrap:wrap;
       align-items:center;
-      margin-bottom:16px;
+      justify-content:flex-end;
     }
 
-    .calendar-wrap{
-      margin:16px 0 20px;
+    .btn{
+      padding:10px 18px;
+      border:none;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:800;
+      background:#fff;
+      color:#6f33b4;
+      border:1px solid var(--line2);
+      min-height:var(--tap);
+      font-size:.95rem;
+      white-space:nowrap;
+    }
+
+    .btn.primary{
+      background:var(--gold);
+      color:#3a2a00;
+      box-shadow:0 2px 0 var(--gold-600);
+    }
+
+    .btn.loading{
+      opacity:.7;
+      pointer-events:none;
+    }
+
+    select,input[type="number"]{
+      min-height:var(--tap);
+      padding:0 12px;
+      border:1px solid var(--line2);
+      border-radius:999px;
+      background:#fff;
+      color:#1f1330;
+      font-size:16px;
+    }
+
+    .page{
+      margin-top:16px;
+    }
+
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+
+    .panel{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      padding:16px;
+    }
+
+    .panel-title{
+      font-weight:900;
+      color:#7a35b8;
+      margin-bottom:8px;
+    }
+
+    .muted{
+      color:var(--muted);
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:12px;
+      width:100%;
+    }
+
+    .stat{
+      background:var(--panel2);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px;
+    }
+
+    .stat .label{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+
+    .stat .value{
+      font-size:20px;
+      font-weight:900;
+      color:#5f2b98;
+    }
+
+    .cal-scroll{
+      overflow:auto;
+      border-top:1px solid var(--line);
+      padding:12px;
     }
 
     .calendar-grid{
       display:grid;
-      grid-template-columns:repeat(7,1fr);
-      gap:8px;
-      margin-top:10px;
+      grid-template-columns:repeat(7, minmax(110px, 1fr));
+      gap:10px;
+      min-width:840px;
     }
 
     .calendar-head{
-      background:#ece7f6;
-      color:#6b1fa7;
+      background:var(--panel2);
+      color:#7a35b8;
+      border:1px solid var(--line);
+      border-radius:12px;
       padding:10px;
-      border-radius:10px;
       text-align:center;
-      font-weight:bold;
-      font-size:14px;
+      font-weight:900;
     }
 
     .calendar-day{
-      padding:12px 8px;
       background:#fff;
-      border:1px solid #ddd;
-      border-radius:10px;
-      text-align:center;
+      border:1px solid var(--line);
+      border-radius:14px;
+      min-height:108px;
+      padding:10px;
       cursor:pointer;
-      font-weight:bold;
-      transition:.15s;
-      user-select:none;
+      transition:.15s ease;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
     }
 
     .calendar-day:hover{
-      background:#f3e9ff;
-      border-color:#6b1fa7;
+      transform:translateY(-1px);
+      box-shadow:var(--shadow);
+      border-color:#d8c5f0;
     }
 
     .calendar-day.active{
-      background:#6b1fa7;
-      color:#fff;
-      border-color:#6b1fa7;
+      border:2px solid #6b1fa7;
+      background:#f9f3ff;
+    }
+
+    .calendar-day.today{
+      box-shadow:0 0 0 2px #ffd95c inset;
+    }
+
+    .calendar-day.holiday{
+      background:var(--holiday);
     }
 
     .calendar-day.empty{
-      background:#f7f7f7;
-      color:#bbb;
+      min-height:108px;
+      background:rgba(255,255,255,.45);
+      border:1px dashed rgba(255,255,255,.25);
       cursor:default;
+    }
+
+    .day-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+    }
+
+    .day-num{
+      font-weight:900;
+      color:#7a35b8;
+      background:#f6edff;
+      border:1px solid #ecd8ff;
+      border-radius:10px;
+      padding:0 8px;
+      height:24px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .day-badge{
+      font-size:11px;
+      padding:2px 8px;
+      border-radius:999px;
+      background:#ffe7f1;
+      color:#b10c58;
+      border:1px solid #ffd2e3;
+    }
+
+    .mini-shifts{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      font-size:12px;
+      color:#2b2140;
+    }
+
+    .mini-item{
+      display:flex;
+      gap:6px;
+      align-items:flex-start;
+      border:1px solid #eee;
+      border-radius:10px;
+      padding:6px 8px;
+      background:#fff;
+      min-height:30px;
+    }
+
+    .chip{
+      flex:0 0 auto;
+      min-width:26px;
+      height:20px;
+      border-radius:8px;
+      font-size:11px;
+      line-height:20px;
+      text-align:center;
+      color:#000;
+      background:#eee;
+      font-weight:900;
+    }
+
+    .chip-s1{background:#dbe9ff}
+    .chip-s2{background:#ffeaa8}
+    .chip-s3{background:#e9d7ff}
+
+    .mini-text{
+      overflow:hidden;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      line-height:1.25;
+    }
+
+    .detail-wrap{
+      display:grid;
+      gap:16px;
     }
 
     .info-card{
       background:#fff;
       border-radius:12px;
       padding:16px;
-      box-shadow:0 4px 10px rgba(0,0,0,0.1);
+      box-shadow:0 4px 10px rgba(0,0,0,0.06);
       color:#222;
+      border:1px solid var(--line);
     }
 
     .shift-grid{
@@ -136,92 +492,299 @@
     }
 
     .shift-card h4{
-      margin-top:0;
-      margin-bottom:10px;
+      margin:0 0 10px 0;
     }
 
-    .s1{ background:#6b1fa7; }
-    .s2{ background:#d12c8b; }
-    .s3{ background:#ff9800; }
-
-    .muted{
-      color:#666;
-      font-size:14px;
+    .shift-card p{
+      margin:0;
+      line-height:1.5;
+      white-space:pre-wrap;
+      word-break:break-word;
     }
 
-    @media (max-width: 700px){
-      body{
-        padding:14px;
+    .s1{background:#6b1fa7}
+    .s2{background:#d12c8b}
+    .s3{background:#ff9800}
+
+    .footer-note{
+      padding:14px 16px;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .loading-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.25);
+      backdrop-filter:blur(8px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      z-index:11000;
+    }
+
+    .loading-overlay.hidden{
+      opacity:0;
+      pointer-events:none;
+    }
+
+    .loading-card{
+      width:min(520px,92vw);
+      background:rgba(255,255,255,.96);
+      border:1px solid var(--line);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:18px;
+      text-align:center;
+    }
+
+    .spinner{
+      width:46px;
+      height:46px;
+      margin:0 auto 12px;
+      border-radius:50%;
+      border:4px solid rgba(122,53,184,.18);
+      border-top-color:#7a35b8;
+      animation:spin 1s linear infinite;
+    }
+
+    .loading-msg{
+      font-weight:900;
+      color:#5a2a90;
+      white-space:pre-line;
+    }
+
+    @keyframes spin{
+      to{transform:rotate(360deg)}
+    }
+
+    #sidebarBackdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.35);
+      z-index:25;
+      display:none;
+    }
+
+    @media (max-width: 960px){
+      body.sidebar-open{overflow:hidden}
+      body.sidebar-open #sidebarBackdrop{display:block}
+
+      .sidebar{
+        position:fixed;
+        left:0;
+        top:0;
+        bottom:0;
+        width:290px;
+        min-height:100vh;
+        transform:translateX(-110%);
+        box-shadow:10px 0 20px rgba(0,0,0,.45);
       }
 
-      .card{
-        padding:16px;
+      body.sidebar-open .sidebar{
+        transform:translateX(0);
       }
 
-      .calendar-grid{
-        gap:6px;
+      .hambtn{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
       }
 
-      .calendar-day, .calendar-head{
-        font-size:13px;
-        padding:10px 6px;
-      }
-
-      input, select, button{
-        width:100%;
-        margin-right:0;
+      .brandbar{
+        flex-direction:column;
+        align-items:flex-start;
       }
 
       .toolbar{
-        flex-direction:column;
-        align-items:stretch;
+        width:100%;
+        justify-content:flex-start;
+        overflow:auto;
       }
+
+      .toolbar > *{
+        flex:0 0 auto;
+      }
+
+      .stats-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width: 700px){
+      .container{padding:10px}
+      .topbar h1{font-size:18px}
+      .stats-grid{grid-template-columns:1fr}
+      select,input[type="number"]{width:100%}
+      .toolbar{flex-direction:column;align-items:stretch}
+      .btn{width:100%}
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>ทดสอบเชื่อม Google Apps Script API</h1>
-    <p class="muted">โหลดข้อมูลเวรจากชีตรายเดือน</p>
+  <div id="sidebarBackdrop"></div>
 
-    <div class="toolbar">
-      <label for="monthIdx">เดือน:</label>
-      <select id="monthIdx" onchange="renderCalendar()">
-        <option value="1">ม.ค.</option>
-        <option value="2">ก.พ.</option>
-        <option value="3">มี.ค.</option>
-        <option value="4">เม.ย.</option>
-        <option value="5">พ.ค.</option>
-        <option value="6">มิ.ย.</option>
-        <option value="7">ก.ค.</option>
-        <option value="8">ส.ค.</option>
-        <option value="9">ก.ย.</option>
-        <option value="10">ต.ค.</option>
-        <option value="11">พ.ย.</option>
-        <option value="12">ธ.ค.</option>
-      </select>
-
-      <label for="day">วันที่:</label>
-      <input type="number" id="day" value="1" min="1" max="31">
-
-      <button onclick="loadRoster()">โหลดข้อมูลเวร</button>
+  <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <div id="loadingMsg" class="loading-msg">กำลังโหลดข้อมูล...</div>
     </div>
+  </div>
 
-    <div class="calendar-wrap">
-      <h2>ปฏิทิน</h2>
-      <div id="calendar"></div>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-title">ตารางเวร Standby</span>
+        <small>ปี 2569 • PEA พระแสง</small>
+      </div>
+
+      <div class="user-block">
+        <div class="user-avatar">PEA</div>
+        <div class="user-info-main">
+          <div class="user-name">PEA Standby Dashboard</div>
+          <div class="user-meta">GitHub Pages + Apps Script API</div>
+        </div>
+      </div>
+
+      <nav class="side-nav">
+        <button class="side-link active" type="button">
+          <span>📅</span>
+          <span>ปฏิทิน & รายละเอียดเวร</span>
+        </button>
+        <button class="side-link disabled" type="button">
+          <span>✅</span>
+          <span>ลงชื่อปฏิบัติงาน</span>
+        </button>
+        <button class="side-link disabled" type="button">
+          <span>🔁</span>
+          <span>ขอสับเปลี่ยนเวร</span>
+        </button>
+        <button class="side-link disabled" type="button">
+          <span>🛠</span>
+          <span>เมนูผู้ดูแล</span>
+        </button>
+      </nav>
+
+      <div class="side-footer">
+        เวอร์ชันแรกของเว็บจริง ใช้ API อ่านข้อมูลเวรรายวันจาก Google Sheets
+      </div>
+    </aside>
+
+    <div class="app-main">
+      <header class="topbar">
+        <div class="container brandbar">
+          <div class="brand-left">
+            <div class="brand-title-row">
+              <button id="sidebarToggle" class="hambtn" type="button">☰</button>
+              <h1>PEA Standby Dashboard</h1>
+            </div>
+            <div class="subline">เว็บจริงเวอร์ชันแรก • โครงสร้างพร้อมต่อยอด Attendance / Swap / Admin</div>
+          </div>
+
+          <div class="toolbar">
+            <select id="monthIdx" title="เลือกเดือน"></select>
+            <input type="number" id="day" min="1" max="31" value="1" title="เลือกวันที่">
+            <button class="btn" id="todayBtn" type="button">วันนี้</button>
+            <button class="btn primary" id="loadBtn" type="button">โหลดข้อมูลเวร</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="container">
+        <section class="page">
+          <section class="card">
+            <div class="panel" style="padding-bottom:0;">
+              <div class="panel-title">ภาพรวมประจำเดือน</div>
+              <div class="muted" id="monthTitle">กำลังเตรียมข้อมูล...</div>
+            </div>
+
+            <div class="panel">
+              <div class="stats-grid">
+                <div class="stat">
+                  <div class="label">เดือนที่เลือก</div>
+                  <div class="value" id="statMonth">-</div>
+                </div>
+                <div class="stat">
+                  <div class="label">วันที่เลือก</div>
+                  <div class="value" id="statDay">-</div>
+                </div>
+                <div class="stat">
+                  <div class="label">วันในสัปดาห์</div>
+                  <div class="value" id="statWeekday">-</div>
+                </div>
+                <div class="stat">
+                  <div class="label">สถานะวัน</div>
+                  <div class="value" id="statHoliday">-</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cal-scroll">
+              <div id="calendar"></div>
+            </div>
+
+            <div class="footer-note">
+              คลิกวันที่ในปฏิทินเพื่อดูรายละเอียดกะ 1, กะ 2, กะ 3 ของวันนั้น
+            </div>
+          </section>
+
+          <section class="card" style="margin-top:16px;">
+            <div class="panel" style="padding-bottom:0;">
+              <div class="panel-title">รายละเอียดเวรประจำวัน</div>
+            </div>
+            <div class="panel">
+              <div id="result" style="width:100%;">
+                <div class="muted">ยังไม่มีข้อมูล</div>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
     </div>
-
-    <h2>ผลลัพธ์</h2>
-    <div id="result" class="result-box">ยังไม่มีข้อมูล</div>
   </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxHi06twBYJrMDZaXv_EdRgzWKXVwwXqbkWvDSMz0_lxOJw2DGXY2dVozH-F07yruby/exec";
     const BE_YEAR = 2569;
-
     const TH_MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-    const WEEKDAYS = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
+    const WEEKDAYS = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+
+    const monthIdxEl = document.getElementById('monthIdx');
+    const dayEl = document.getElementById('day');
+    const resultEl = document.getElementById('result');
+    const calendarEl = document.getElementById('calendar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+    const loadBtn = document.getElementById('loadBtn');
+    const todayBtn = document.getElementById('todayBtn');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadingMsg = document.getElementById('loadingMsg');
+
+    function showLoading(msg = 'กำลังโหลดข้อมูล...') {
+      loadingMsg.textContent = msg;
+      loadingOverlay.classList.remove('hidden');
+    }
+
+    function hideLoading() {
+      loadingOverlay.classList.add('hidden');
+    }
+
+    function getCurrentThaiDateParts() {
+      const now = new Date();
+      return {
+        beYear: now.getFullYear() + 543,
+        month: now.getMonth() + 1,
+        day: now.getDate()
+      };
+    }
+
+    function initMonthOptions() {
+      monthIdxEl.innerHTML = TH_MONTHS.map((m, i) =>
+        `<option value="${i + 1}">${m}</option>`
+      ).join('');
+    }
 
     function getDaysInMonth(monthIdx, beYear) {
       const ceYear = beYear - 543;
@@ -233,13 +796,38 @@
       return new Date(ceYear, monthIdx - 1, 1).getDay();
     }
 
-    function renderCalendar() {
-      const calendar = document.getElementById("calendar");
-      const monthIdx = Number(document.getElementById("monthIdx").value);
-      const selectedDay = Number(document.getElementById("day").value || 1);
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
 
+    function shortShiftText(text) {
+      const raw = String(text || '').trim();
+      if (!raw) return '-';
+      const idx = raw.indexOf(':');
+      const tail = idx >= 0 ? raw.slice(idx + 1).trim() : raw;
+      return tail || raw;
+    }
+
+    function isHolidayText(v) {
+      return String(v || '').trim() !== '';
+    }
+
+    function renderCalendar(lastData = null) {
+      const monthIdx = Number(monthIdxEl.value);
+      const selectedDay = Number(dayEl.value || 1);
       const daysInMonth = getDaysInMonth(monthIdx, BE_YEAR);
       const firstDay = getFirstDayOfMonth(monthIdx, BE_YEAR);
+      const today = getCurrentThaiDateParts();
+
+      document.getElementById('monthTitle').textContent =
+        `เดือน ${TH_MONTHS[monthIdx - 1]} ปี ${BE_YEAR}`;
+      document.getElementById('statMonth').textContent = TH_MONTHS[monthIdx - 1];
+      document.getElementById('statDay').textContent = selectedDay;
 
       let html = `<div class="calendar-grid">`;
 
@@ -252,30 +840,71 @@
       }
 
       for (let d = 1; d <= daysInMonth; d++) {
-        const activeClass = d === selectedDay ? 'active' : '';
+        const isActive = d === selectedDay;
+        const isToday = today.beYear === BE_YEAR && today.month === monthIdx && today.day === d;
+
+        const holidayClass =
+          lastData && d === Number(lastData.day) && isHolidayText(lastData.holiday)
+            ? 'holiday'
+            : '';
+
         html += `
-          <div class="calendar-day ${activeClass}" onclick="selectDay(${d})">
-            ${d}
+          <div class="calendar-day ${isActive ? 'active' : ''} ${isToday ? 'today' : ''} ${holidayClass}" onclick="selectDay(${d})">
+            <div class="day-top">
+              <span class="day-num">${d}</span>
+              ${lastData && d === Number(lastData.day) && isHolidayText(lastData.holiday) ? `<span class="day-badge">หยุด</span>` : ``}
+            </div>
+            <div class="mini-shifts">
+              <div class="mini-item">
+                <span class="chip chip-s1">S1</span>
+                <div class="mini-text">${lastData && d === Number(lastData.day) ? escapeHtml(shortShiftText(lastData.s1)) : 'คลิกเพื่อดู'}</div>
+              </div>
+              <div class="mini-item">
+                <span class="chip chip-s2">S2</span>
+                <div class="mini-text">${lastData && d === Number(lastData.day) ? escapeHtml(shortShiftText(lastData.s2)) : 'คลิกเพื่อดู'}</div>
+              </div>
+              <div class="mini-item">
+                <span class="chip chip-s3">S3</span>
+                <div class="mini-text">${lastData && d === Number(lastData.day) ? escapeHtml(shortShiftText(lastData.s3)) : 'คลิกเพื่อดู'}</div>
+              </div>
+            </div>
           </div>
         `;
       }
 
       html += `</div>`;
-      calendar.innerHTML = html;
+      calendarEl.innerHTML = html;
+    }
+
+    function setStats(data) {
+      document.getElementById('statDay').textContent = data.day || '-';
+      document.getElementById('statWeekday').textContent = data.weekday || '-';
+      document.getElementById('statHoliday').textContent = data.holiday ? 'วันหยุด' : 'วันปกติ';
     }
 
     function selectDay(day) {
-      document.getElementById("day").value = day;
+      dayEl.value = day;
+      renderCalendar();
+      loadRoster();
+    }
+
+    function goToday() {
+      const now = getCurrentThaiDateParts();
+      monthIdxEl.value = String(now.month);
+      dayEl.value = String(now.day);
       renderCalendar();
       loadRoster();
     }
 
     async function loadRoster() {
-      const result = document.getElementById("result");
-      const monthIdx = document.getElementById("monthIdx").value;
-      const day = document.getElementById("day").value;
+      const monthIdx = monthIdxEl.value;
+      const day = dayEl.value;
 
-      result.textContent = "กำลังโหลด...";
+      loadBtn.classList.add('loading');
+      todayBtn.classList.add('loading');
+      showLoading('กำลังโหลดข้อมูลเวร...');
+
+      resultEl.innerHTML = `<div class="muted">กำลังโหลดข้อมูล...</div>`;
 
       try {
         const url = `${API_URL}?action=roster&beYear=${BE_YEAR}&monthIdx=${monthIdx}&day=${day}`;
@@ -286,50 +915,90 @@
         try {
           data = JSON.parse(text);
         } catch (err) {
-          result.textContent = "ข้อมูลที่ได้ไม่ใช่ JSON:\n\n" + text;
+          resultEl.innerHTML = `<div class="muted">ข้อมูลที่ได้ไม่ใช่ JSON</div><pre>${escapeHtml(text)}</pre>`;
           return;
         }
 
         if (!data.ok) {
-          result.textContent = "โหลดไม่สำเร็จ:\n" + JSON.stringify(data, null, 2);
+          resultEl.innerHTML = `<pre>${escapeHtml(JSON.stringify(data, null, 2))}</pre>`;
           return;
         }
 
-        result.innerHTML = `
-          <div style="display:grid; gap:16px;">
+        setStats(data);
+        renderCalendar(data);
+
+        resultEl.innerHTML = `
+          <div class="detail-wrap">
             <div class="info-card">
-              <h3 style="margin:0 0 12px 0;">📅 วันที่ ${data.day} / ${data.monthIdx} / ${data.beYear}</h3>
-              <p>📌 วัน: <strong>${data.weekday || "-"}</strong></p>
-              <p>📌 สถานะ: <strong>${data.holiday || "-"}</strong></p>
+              <h3 style="margin:0 0 12px 0;">📅 วันที่ ${escapeHtml(data.day)} / ${escapeHtml(data.monthIdx)} / ${escapeHtml(data.beYear)}</h3>
+              <p>📌 วัน: <strong>${escapeHtml(data.weekday || '-')}</strong></p>
+              <p>📌 สถานะ: <strong>${escapeHtml(data.holiday || 'วันปกติ')}</strong></p>
             </div>
 
             <div class="shift-grid">
               <div class="shift-card s1">
                 <h4>⚡ กะ 1</h4>
-                <p>${data.s1 || "-"}</p>
+                <p>${escapeHtml(data.s1 || '-')}</p>
               </div>
 
               <div class="shift-card s2">
                 <h4>⚡ กะ 2</h4>
-                <p>${data.s2 || "-"}</p>
+                <p>${escapeHtml(data.s2 || '-')}</p>
               </div>
 
               <div class="shift-card s3">
                 <h4>⚡ กะ 3</h4>
-                <p>${data.s3 || "-"}</p>
+                <p>${escapeHtml(data.s3 || '-')}</p>
               </div>
             </div>
           </div>
         `;
       } catch (error) {
-        result.textContent = "เกิดข้อผิดพลาด: " + error.message;
+        resultEl.innerHTML = `<div class="muted">เกิดข้อผิดพลาด: ${escapeHtml(error.message)}</div>`;
+      } finally {
+        loadBtn.classList.remove('loading');
+        todayBtn.classList.remove('loading');
+        hideLoading();
       }
     }
 
-    window.onload = function () {
+    function openMobileSidebar(open) {
+      document.body.classList.toggle('sidebar-open', !!open);
+    }
+
+    sidebarToggle.addEventListener('click', () => {
+      openMobileSidebar(!document.body.classList.contains('sidebar-open'));
+    });
+
+    sidebarBackdrop.addEventListener('click', () => openMobileSidebar(false));
+    loadBtn.addEventListener('click', loadRoster);
+    todayBtn.addEventListener('click', goToday);
+
+    monthIdxEl.addEventListener('change', () => {
+      const maxDay = getDaysInMonth(Number(monthIdxEl.value), BE_YEAR);
+      if (Number(dayEl.value) > maxDay) dayEl.value = maxDay;
       renderCalendar();
       loadRoster();
-    };
+    });
+
+    dayEl.addEventListener('change', () => {
+      const maxDay = getDaysInMonth(Number(monthIdxEl.value), BE_YEAR);
+      if (Number(dayEl.value) < 1) dayEl.value = 1;
+      if (Number(dayEl.value) > maxDay) dayEl.value = maxDay;
+      renderCalendar();
+      loadRoster();
+    });
+
+    window.selectDay = selectDay;
+
+    (function init() {
+      initMonthOptions();
+      const now = getCurrentThaiDateParts();
+      monthIdxEl.value = String(now.month);
+      dayEl.value = String(now.day);
+      renderCalendar();
+      loadRoster();
+    })();
   </script>
 </body>
 </html>
